@@ -21,12 +21,15 @@ export default function Main() {
 
     function addIngredient(formData) {
         const newIngredient = formData.get("ingredient")
-        setIngredients(prevIngredients => [...prevIngredients, newIngredient])
+        if (newIngredient.trim()) {
+            setIngredients(prevIngredients => [...prevIngredients, newIngredient.trim()])
+            formData.set("ingredient", "") // Clear the input
+        }
     }
 
     return (
         <main>
-            <form action={addIngredient} className="add-ingredient-form">
+            <form onSubmit={(e) => { e.preventDefault(); addIngredient(new FormData(e.target)); }} className="add-ingredient-form">
                 <input
                     type="text"
                     placeholder="e.g. oregano"
