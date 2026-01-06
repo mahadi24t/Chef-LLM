@@ -8,14 +8,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "0.27.3",
-    "@huggingface/inference": "2.8.1",
-    "react": "19.0.0-rc-8b08e99e-20240713",
-    "react-dom": "19.0.0-rc-8b08e99e-20240713",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-markdown": "^10.1.0",
-    "vite": "latest"
+    "vite": "^5.0.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "*"
+    "@vitejs/plugin-react": "^4.0.0"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
