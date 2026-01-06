@@ -4,14 +4,19 @@ import ClaudeRecipe from "./components/ClaudeRecipe"
 import { getRecipeFromChefClaude, getRecipeFromMistral } from "./ai"
 
 export default function Main() {
-    const [ingredients, setIngredients] = React.useState(
-        ["chicken", "all the main spices", "corn", "heavy cream", "pasta"]
-    )
+    const [ingredients, setIngredients] = React.useState([])
     const [recipe, setRecipe] = React.useState("")
 
     async function getRecipe() {
-        const recipeMarkdown = await getRecipeFromChefClaude(ingredients)
-        setRecipe(recipeMarkdown)
+        console.log("Getting recipe...")
+        try {
+            const recipeMarkdown = await getRecipeFromMistral(ingredients)
+            console.log("Recipe received:", recipeMarkdown)
+            setRecipe(recipeMarkdown)
+        } catch (error) {
+            console.error("Error getting recipe:", error)
+            alert("Failed to get recipe. Please check the console for details.")
+        }
     }
 
     function addIngredient(formData) {
@@ -30,6 +35,17 @@ export default function Main() {
                 />
                 <button>Add ingredient</button>
             </form>
+
+            {ingredients.length === 0 && (
+                <div className="instructions">
+                    <h2>How to use this app:</h2>
+                    <ol>
+                        <li>Add ingredients you have available by typing them in the input field above and clicking "Add ingredient". For example, try adding: chicken, rice, onions, garlic, tomatoes.</li>
+                        <li>Once you've added a few ingredients, click the "Get a recipe" button to generate a recipe suggestion.</li>
+                        <li>The app will use AI to create a delicious recipe based on your ingredients!</li>
+                    </ol>
+                </div>
+            )}
 
             {ingredients.length > 0 &&
                 <IngredientsList

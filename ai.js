@@ -17,9 +17,9 @@ You are an assistant that receives a list of ingredients that a user has and sug
 // API keys private.
 
 const anthropic = new Anthropic({
-    // Make sure you set an environment variable in Scrimba 
+    // Make sure you set an environment variable in Scrimba
     // for ANTHROPIC_API_KEY
-    apiKey: process.env.ANTHROPIC_API_KEY,
+    apiKey: (typeof process !== 'undefined' ? process.env.ANTHROPIC_API_KEY : undefined) || import.meta.env.VITE_ANTHROPIC_API_KEY,
     dangerouslyAllowBrowser: true,
 })
 
@@ -37,22 +37,37 @@ export async function getRecipeFromChefClaude(ingredientsArr) {
     return msg.content[0].text
 }
 
-// Make sure you set an environment variable in Scrimba 
+// Make sure you set an environment variable in Scrimba
 // for HF_ACCESS_TOKEN
-const hf = new HfInference(process.env.HF_ACCESS_TOKEN)
+const hf = new HfInference((typeof process !== 'undefined' ? process.env.HF_ACCESS_TOKEN : undefined) || import.meta.env.VITE_HF_ACCESS_TOKEN, {
+    baseUrl: '/api'
+})
 
 export async function getRecipeFromMistral(ingredientsArr) {
     const ingredientsString = ingredientsArr.join(", ")
+    const token = import.meta.env.VITE_PERPLEXITY_API_KEY
     try {
-        const response = await hf.chatCompletion({
-            model: "mistralai/Mixtral-8x7B-Instruct-v0.1",
-            messages: [
-                { role: "system", content: SYSTEM_PROMPT },
-                { role: "user", content: `I have ${ingredientsString}. Please give me a recipe you'd recommend I make!` },
-            ],
-            max_tokens: 1024,
+        const response = await fetch('https://api.perplexity.ai/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'sonar',
+                messages: [
+                    { role: "system", content: SYSTEM_PROMPT },
+                    { role: "user", content: `I have ${ingredientsString}. Please give me a recipe you'd recommend I make!` },
+                ],
+                max_tokens: 1024,
+                temperature: 0.7
+            })
         })
-        return response.choices[0].message.content
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        const data = await response.json()
+        return data.choices[0].message.content
     } catch (err) {
         console.error(err.message)
     }
